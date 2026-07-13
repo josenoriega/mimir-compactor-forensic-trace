@@ -4,6 +4,8 @@ Public, self-contained technical dossier showing how a Grafana alert becomes a g
 
 The published page contains the full request sequence, identity derivation, policy boundary, PostgreSQL rows, transactional outbox transitions, and audit reconstruction for one concrete Mimir compactor PVC-pressure case.
 
-Open the published dossier:
+Open the DigitalOcean-hosted dossier:
 
-**https://josenoriega.github.io/mimir-compactor-forensic-trace/**
+**https://mimir-compactor-forensic-trace-qk857.ondigitalocean.app/**
+
+GitHub Pages mirror: https://josenoriega.github.io/mimir-compactor-forensic-trace/
