@@ -2628,6 +2628,52 @@ border-radius: 5px;
 #TOC {
 font-size: .86rem;
 }
+#toc-auto-toggle {
+display: none;
+}
+@media (min-width: 1100px) {
+#quarto-margin-sidebar.toc-auto-hide #TOC {
+visibility: hidden;
+opacity: 0;
+pointer-events: none;
+}
+#quarto-margin-sidebar.toc-auto-hide.toc-visible #TOC {
+visibility: visible;
+opacity: 1;
+pointer-events: auto;
+}
+#toc-auto-toggle {
+position: fixed;
+top: 1.5rem;
+right: .25rem;
+display: grid;
+place-items: center;
+width: 2.4rem;
+height: 2.4rem;
+border: 1px solid #34445f;
+border-radius: 4px 0 0 4px;
+padding: 0;
+color: #fff;
+background: var(--navy);
+font: inherit;
+font-size: 1.15rem;
+line-height: 1;
+cursor: pointer;
+pointer-events: auto;
+z-index: 1040;
+box-shadow: 0 5px 16px rgba(16, 26, 44, .18);
+}
+#toc-auto-toggle:hover,
+#toc-auto-toggle:focus-visible {
+color: #fff;
+background: var(--blue);
+outline: 3px solid rgba(21, 87, 166, .24);
+outline-offset: 2px;
+}
+#quarto-margin-sidebar.toc-pinned #toc-auto-toggle {
+background: var(--blue);
+}
+}
 @media (max-width: 900px) {
 table {
 display: block;
@@ -6591,6 +6637,60 @@ document.addEventListener("DOMContentLoaded", () => {
   dialog.addEventListener("click", (event) => {
     if (event.target === dialog) dialog.close();
   });
+
+  const tocSidebar = document.getElementById("quarto-margin-sidebar");
+  const toc = document.getElementById("TOC");
+  if (tocSidebar && toc) {
+    const tocToggle = document.createElement("button");
+    tocToggle.id = "toc-auto-toggle";
+    tocToggle.type = "button";
+    tocToggle.innerHTML = "&#9776;";
+    tocToggle.setAttribute("aria-controls", "TOC");
+    tocToggle.setAttribute("aria-label", "Open table of contents");
+    tocToggle.title = "Open table of contents";
+    tocSidebar.prepend(tocToggle);
+    tocSidebar.classList.add("toc-auto-hide");
+
+    let tocPinned = false;
+    let tocHideTimer;
+    const setTocOpen = (open) => {
+      window.clearTimeout(tocHideTimer);
+      tocSidebar.classList.toggle("toc-visible", open);
+      tocToggle.setAttribute("aria-expanded", String(open));
+      tocToggle.setAttribute("aria-label", open ? "Close table of contents" : "Open table of contents");
+      tocToggle.title = open ? "Close table of contents" : "Open table of contents";
+    };
+    const revealToc = () => setTocOpen(true);
+    const scheduleTocHide = (delay = 700) => {
+      if (tocPinned) return;
+      window.clearTimeout(tocHideTimer);
+      tocHideTimer = window.setTimeout(() => setTocOpen(false), delay);
+    };
+
+    setTocOpen(false);
+    tocSidebar.addEventListener("mouseenter", revealToc);
+    tocSidebar.addEventListener("mouseleave", () => scheduleTocHide());
+    tocSidebar.addEventListener("focusin", revealToc);
+    tocSidebar.addEventListener("focusout", (event) => {
+      if (!tocSidebar.contains(event.relatedTarget)) scheduleTocHide(150);
+    });
+    tocToggle.addEventListener("click", () => {
+      tocPinned = !tocPinned;
+      tocSidebar.classList.toggle("toc-pinned", tocPinned);
+      setTocOpen(tocPinned);
+    });
+    toc.addEventListener("click", (event) => {
+      if (event.target.closest("a") && !tocPinned) scheduleTocHide(150);
+    });
+    tocSidebar.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        tocPinned = false;
+        tocSidebar.classList.remove("toc-pinned");
+        tocToggle.focus();
+        window.requestAnimationFrame(() => setTocOpen(false));
+      }
+    });
+  }
 });
 </script>
 </section>
