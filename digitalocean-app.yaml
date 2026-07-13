@@ -1,0 +1,12 @@
+name: mimir-compactor-forensic-trace
+region: nyc
+static_sites:
+  - name: dossier
+    github:
+      repo: josenoriega/mimir-compactor-forensic-trace
+      branch: main
+      deploy_on_push: true
+    source_dir: /
+    output_dir: /
+    index_document: index.html
+    error_document: index.html
